@@ -1,9 +1,197 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta http-equiv="refresh" content="0; url=./MaintainX_Pricing_Calculator.html" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #1a1a1a; min-height: 100vh; }
+.header { background: #1B3B6F; padding: 16px 24px; display: flex; align-items: center; }
+.logo { display: flex; align-items: center; gap: 10px; }
+.logo-text { color: white; font-size: 18px; font-weight: 600; }
+.header-sub { color: #93afd4; font-size: 12px; margin-left: auto; }
+.container { max-width: 900px; margin: 0 auto; padding: 24px 16px; }
+.section { background: white; border-radius: 12px; border: 0.5px solid #e0e0e0; padding: 20px; margin-bottom: 16px; }
+.section-title { font-size: 13px; font-weight: 600; color: #666; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px; }
+.plan-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.plan-card { border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 16px; cursor: pointer; transition: all 0.15s; }
+.plan-card:hover { border-color: #1B3B6F; background: #f8faff; }
+.plan-card.active { border-color: #1B3B6F; background: #EEF3FB; }
+.plan-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.plan-price { font-size: 12px; color: #666; }
+.plan-badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 4px; margin-top: 6px; font-weight: 500; }
+.badge-e { background: #E1F5EE; color: #0F6E56; }
+.badge-p { background: #E6F1FB; color: #185FA5; }
+.badge-n { background: #EEEDFE; color: #3C3489; }
+.inputs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.input-group { display: flex; flex-direction: column; gap: 5px; }
+.input-group label { font-size: 13px; color: #555; font-weight: 500; }
+.input-group input { padding: 9px 12px; border: 0.5px solid #d0d0d0; border-radius: 8px; font-size: 14px; outline: none; }
+.input-group input:focus { border-color: #1B3B6F; }
+.note { font-size: 11px; color: #888; }
+.note-warn { font-size: 11px; color: #F97316; display: none; }
+.toggle-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.toggle { display: flex; background: #f0f0f0; border-radius: 8px; padding: 3px; }
+.toggle button { padding: 6px 16px; border: none; background: transparent; border-radius: 6px; font-size: 13px; cursor: pointer; color: #666; }
+.toggle button.active { background: #1B3B6F; color: white; font-weight: 500; }
+.disc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
+.director-box { background: #FEF2F2; border: 0.5px solid #FCA5A5; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #991B1B; margin-top: 10px; display: none; }
+.director-box.show { display: block; }
+.imp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.imp-card { border: 0.5px solid #e0e0e0; border-radius: 8px; padding: 14px; cursor: pointer; transition: all 0.15s; }
+.imp-card:hover { border-color: #1B3B6F; }
+.imp-card.active { border-color: #1B3B6F; background: #EEF3FB; }
+.imp-card.disabled { opacity: 0.4; pointer-events: none; }
+.imp-name { font-size: 14px; font-weight: 600; }
+.imp-price { font-size: 12px; color: #666; margin-top: 4px; }
+.warn-box { background: #FFF7ED; border: 0.5px solid #FDBA74; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #9A3412; margin-top: 12px; display: none; }
+.warn-box.show { display: block; }
+.quote-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.copy-btn { padding: 8px 16px; background: #1B3B6F; color: white; border: none; border-radius: 8px; font-size: 13px; cursor: pointer; font-weight: 500; }
+.copy-btn:hover { background: #142d56; }
+.copy-btn.ok { background: #0F6E56; }
+.plan-label { font-size: 15px; font-weight: 700; color: #1B3B6F; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+table.qt { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.qt th { background: #1B3B6F; color: white; padding: 10px 12px; text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: 0.3px; }
+table.qt th:not(:first-child) { text-align: center; }
+table.qt td { padding: 10px 12px; border-bottom: 0.5px solid #eee; vertical-align: middle; }
+table.qt td:not(:first-child) { text-align: center; }
+table.qt tr:last-child td { border-bottom: none; }
+.iname { font-weight: 600; }
+.isub { font-size: 11px; color: #888; font-style: italic; }
+.disc-hi { color: #dc2626; font-weight: 700; }
+.totals { display: flex; justify-content: flex-end; margin-top: 12px; }
+.totals-inner { min-width: 280px; }
+.trow { display: flex; justify-content: space-between; align-items: center; padding: 9px 14px; background: #1B3B6F; color: white; font-weight: 700; margin-bottom: 2px; border-radius: 6px; font-size: 14px; }
+.trow.big { font-size: 15px; }
+.trow.big .tval { font-size: 19px; }
+.note-box { background: #f8f8f8; border: 0.5px solid #e0e0e0; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #555; margin-top: 12px; }
+</style>
 </head>
 <body>
-    <p>Redirecting to calculator...</p>
+<div class="header">
+  <div class="logo">
+    <span style="font-size:26px;font-weight:800;color:white;letter-spacing:-0.5px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">Maintain<span style="color:#2563EB;">X</span></span>
+  </div>
+  <span class="header-sub">Pricing Calculator — Internal Sales Tool</span>
+</div>
+<div class="container">
+  <div class="section">
+    <div class="section-title">1. Select plan</div>
+    <div class="plan-grid">
+      <div class="plan-card" id="pc-essential" onclick="selectPlan('essential')">
+        <div class="plan-name">Essential</div>
+        <div class="plan-price">$25/user/mo · $20/user/mo yearly</div>
+        <span class="plan-badge badge-e">Essential</span>
+      </div>
+      <div class="plan-card active" id="pc-premium" onclick="selectPlan('premium')">
+        <div class="plan-name">Premium</div>
+        <div class="plan-price">$75/user/mo · $65/user/mo yearly</div>
+        <span class="plan-badge badge-p">Most Popular</span>
+      </div>
+      <div class="plan-card" id="pc-enterprise" onclick="selectPlan('enterprise')">
+        <div class="plan-name">Enterprise</div>
+        <div class="plan-price">$165/user/mo · $140/user/mo yearly</div>
+        <span class="plan-badge badge-n">Enterprise</span>
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">2. Configure</div>
+    <div class="toggle-row">
+      <span style="font-size:13px;color:#555;font-weight:500">Billing cycle:</span>
+      <div class="toggle">
+        <button id="btn-mo" onclick="setBilling('monthly')">Monthly</button>
+        <button id="btn-yr" class="active" onclick="setBilling('yearly')">Yearly</button>
+      </div>
+    </div>
+    <div class="inputs-grid">
+      <div class="input-group">
+        <label>Full users (admin + full)</label>
+        <input type="number" id="num-users" value="15" min="1" oninput="calc()" onfocus="this.select()">
+        <div class="note-warn" id="user-warn">⚠ Enterprise: custom quote may apply for large counts</div>
+      </div>
+      <div class="input-group">
+        <label>Operator / read-only users</label>
+        <input type="number" id="num-ops" value="0" min="0" oninput="calc()" onfocus="this.select()">
+        <div class="note">Static rate: $180/yr (Premium) · $240/yr (Enterprise)</div>
+      </div>
+      <div class="input-group">
+        <label>Number of sites</label>
+        <input type="number" id="num-sites" value="1" min="1" oninput="calc()" onfocus="this.select()">
+      </div>
+      <div class="input-group">
+        <label>Number of CBLs</label>
+        <input type="number" id="num-cbls" value="0" min="0" oninput="calc()" onfocus="this.select()">
+      </div>
+    </div>
+    <div class="disc-grid">
+      <div class="input-group">
+        <label>Subscription discount %</label>
+        <input type="number" id="sub-disc" value="0" min="0" max="50" step="0.5" oninput="calc()" onfocus="this.select()">
+        <div class="note">AEs: up to 20% · SMs: up to 35%</div>
+      </div>
+      <div class="input-group">
+        <label>Implementation discount %</label>
+        <input type="number" id="imp-disc" value="0" min="0" max="50" step="0.5" oninput="calc()" onfocus="this.select()">
+        <div class="note">AEs: up to 20% · SMs: up to 35%</div>
+      </div>
+    </div>
+    <div class="director-box" id="dir-warn">⚠ Director approval required — discount exceeds 35%</div>
+  </div>
+  <div class="section">
+    <div class="section-title">3. Implementation</div>
+    <div class="imp-grid">
+      <div class="imp-card active" id="ic-guided" onclick="selectImp('guided')">
+        <div class="imp-name">Guided</div>
+        <div class="imp-price" id="guided-lbl">$1,500 — 1 site only</div>
+      </div>
+      <div class="imp-card" id="ic-full" onclick="selectImp('full')">
+        <div class="imp-name">Full</div>
+        <div class="imp-price" id="full-lbl">$3,500 — 1 site only</div>
+      </div>
+    </div>
+    <div class="warn-box" id="warn-essential">Essential plan does not include implementation services</div>
+  </div>
+  <div class="section">
+    <div class="quote-header">
+      <span class="plan-label" id="q-plan">Premium</span>
+      <button class="copy-btn" id="copy-btn" onclick="copyTable()">Copy for Google Sheets</button>
+    </div>
+    <table class="qt">
+      <thead>
+        <tr>
+          <th>Item</th><th>Count</th><th>List Price</th><th>Discount</th><th>Net Price</th><th>Sub-Total</th>
+        </tr>
+      </thead>
+      <tbody id="qtbody"></tbody>
+    </table>
+    <div class="totals">
+      <div class="totals-inner">
+        <div class="trow"><span>Discount total:</span><span class="tval" id="q-disc">$0.00</span></div>
+        <div class="trow big"><span>1-year total:</span><span class="tval" id="q-total">$0.00</span></div>
+      </div>
+    </div>
+    <div class="note-box">All prices in USD. Annual commitment required. Implementation services not available for Essential plan.</div>
+  </div>
+</div>
+<script>
+var PLANS = { essential: { label: 'Essential', mo: 25, yr: 20, opYr: 0 }, premium: { label: 'Premium', mo: 75, yr: 65, opYr: 180 }, enterprise: { label: 'Enterprise', mo: 165, yr: 140, opYr: 240 } };
+var IMP_PRICES = { guided: 1500, full: 3500 };
+var CBL = 100;
+var curPlan = 'premium';
+var curBilling = 'yearly';
+var curImp = 'guided';
+function selectPlan(p) { curPlan = p; document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('active')); document.getElementById('pc-'+p).classList.add('active'); refreshImp(); calc(); }
+function setBilling(b) { curBilling = b; document.getElementById('btn-mo').classList.remove('active'); document.getElementById('btn-yr').classList.remove('active'); document.getElementById('btn-'+b.charAt(0)).classList.add('active'); calc(); }
+function selectImp(i) { if(curPlan==='essential') return; curImp = i; document.querySelectorAll('.imp-card').forEach(c => c.classList.remove('active')); document.getElementById('ic-'+i).classList.add('active'); calc(); }
+function refreshImp() { var isEss = curPlan==='essential'; document.getElementById('warn-essential').style.display = isEss ? 'block' : 'none'; document.querySelectorAll('.imp-card').forEach(function(c) { c.classList.toggle('disabled', isEss); }); if(isEss) document.querySelectorAll('.imp-card').forEach(c => c.classList.remove('active')); }
+function getValues() { var users = parseInt(document.getElementById('num-users').value) || 1; var ops = parseInt(document.getElementById('num-ops').value) || 0; var sites = parseInt(document.getElementById('num-sites').value) || 1; var cbls = parseInt(document.getElementById('num-cbls').value) || 0; var sd = (parseFloat(document.getElementById('sub-disc').value) || 0) / 100; var id = (parseFloat(document.getElementById('imp-disc').value) || 0) / 100; var P = PLANS[curPlan]; var yr = curBilling==='yearly' ? 1 : 12; var listPU = P.yr * yr; var netPU = listPU * (1 - sd); var fullNet = users * netPU; var opNet = ops > 0 ? ops * P.opYr * (1 - sd) : 0; var cblAnnual = cbls * CBL * 12; var impList = IMP_PRICES[curImp]; var impNet = impList * (1 - id); var subTotal = fullNet + opNet + cblAnnual + (curPlan==='essential' ? 0 : impNet); var discTotal = (users * listPU * sd) + (ops > 0 ? ops * P.opYr * sd : 0) + (curPlan==='essential' ? 0 : impList * id); var year1 = subTotal; if(users > 100) document.getElementById('user-warn').style.display = 'block'; else document.getElementById('user-warn').style.display = 'none'; if((parseFloat(document.getElementById('sub-disc').value) || 0) > 35 || (parseFloat(document.getElementById('imp-disc').value) || 0) > 35) { document.getElementById('dir-warn').classList.add('show'); } else { document.getElementById('dir-warn').classList.remove('show'); } return { users, ops, sites, cbls, sd, id, P, listPU, netPU, fullNet, opNet, cblAnnual, impList, impNet, subTotal, discTotal, year1, sdp: sd*100, idp: id*100 }; }
+function d(n) { return '$' + (n || 0).toFixed(2); }
+function pct(p) { return (p || 0).toFixed(1) + '%'; }
+function calc() { var v = getValues(); var opDiscPct = (v.ops > 0 && curPlan !== 'essential' && v.P.opYr > 0) ? Math.round(v.sd*1000)/10 : 0; var rows = []; rows.push({ name: 'Full License Subscription (Full Users + Admin Users)', sub: '', count: v.users, list: d(v.listPU) + '/user/yr', disc: pct(v.sdp), net: d(v.netPU) + '/user/yr', subtotal: d(v.fullNet), subsub: '(Annually)' }); rows.push({ name: 'Limited License Subscription (Operator + Read-Only)', sub: '', count: v.ops, list: curPlan==='essential' ? '—' : d(v.P.opYr) + '/user/yr', disc: curPlan==='essential' ? '—' : pct(opDiscPct), net: curPlan==='essential' ? '—' : d(v.P.opYr*(1-v.sd)) + '/user/yr', subtotal: (v.ops > 0 && curPlan !== 'essential') ? d(v.opNet) : '$0.00', subsub: '(Annually)' }); if(v.cbls > 0) { rows.push({ name: 'CBL Subscription', sub: '', count: v.cbls, list: d(CBL*12) + '/CBL/yr', disc: '0%', net: d(CBL*12) + '/CBL/yr', subtotal: d(v.cblAnnual), subsub: '(Annually)' }); } rows.push({ name: 'Implementation', sub: 'One-time fee', count: curPlan==='essential' ? 'N/A' : v.sites + ' Site(s)', list: curPlan==='essential' ? '—' : d(v.impList), disc: curPlan==='essential' ? '—' : pct(v.idp), net: curPlan==='essential' ? '—' : d(v.impNet), subtotal: curPlan==='essential' ? '$0.00' : d(v.impNet), subsub: '(One-time)' }); rows.push({ name: 'Requester Only Users', sub: '', count: 'Unlimited', list: '—', disc: '—', net: '—', subtotal: '$0.00' }); var tbody = document.getElementById('qtbody'); tbody.innerHTML = ''; rows.forEach(function(r) { var tr = document.createElement('tr'); tr.innerHTML = '<td><div class="iname">'+r.name+'</div>'+(r.sub?'<div class="isub">'+r.sub+'</div>':'')+'</td>'+'<td>'+r.count+'</td>'+'<td>'+r.list+'</td>'+'<td>'+r.disc+'</td>'+'<td>'+r.net+'</td>'+'<td><strong>'+r.subtotal+'</strong>'+(r.subsub?'<div class="isub">'+r.subsub+'</div>':'')+'</td>'; tbody.appendChild(tr); }); document.getElementById('q-plan').textContent = v.P.label; document.getElementById('q-disc').textContent = d(v.discTotal); document.getElementById('q-total').textContent = d(v.year1); }
+function copyTable() { var v = getValues(); var opDiscPct = (v.ops > 0 && curPlan !== 'essential' && v.P.opYr > 0) ? Math.round(v.sd*1000)/10 : 0; var rows = [['Item','Count','List Price','Discount','Net Price','Sub-Total'], ['Full License Subscription (Full Users + Admin Users)', v.users, d(v.listPU)+'/user/yr', pct(v.sdp), d(v.netPU)+'/user/yr', d(v.fullNet)+' (Annually)'], ['Limited License Subscription (Operator + Read-Only)', v.ops, curPlan==='essential'?'—':d(v.P.opYr)+'/user/yr', curPlan==='essential'?'—':pct(opDiscPct), curPlan==='essential'?'—':d(v.P.opYr*(1-v.sd))+'/user/yr', (v.ops > 0 && curPlan !== 'essential') ? d(v.opNet)+' (Annually)' : '$0.00']]; if(v.cbls > 0) rows.push(['CBL Subscription', v.cbls, d(CBL*12)+'/CBL/yr', '0%', d(CBL*12)+'/CBL/yr', d(v.cblAnnual)+' (Annually)']); rows.push(['Implementation (One-time fee)', curPlan==='essential' ? 'N/A' : v.sites + ' Site(s)', curPlan==='essential' ? '—' : d(v.impList), curPlan==='essential' ? '—' : pct(v.idp), curPlan==='essential' ? '—' : d(v.impNet), curPlan==='essential' ? '$0.00' : d(v.impNet) + ' (One-time)']); rows.push(['Requester Only Users','Unlimited','—','—','—','$0.00']); rows.push(['','','','','Discount Total:',d(v.discTotal)]); rows.push(['','','','','1-Year Agreement Total:',d(v.year1)]); var tsv = rows.map(function(r) { return r.join('\t'); }).join('\r\n'); if(navigator.clipboard && window.ClipboardItem) { navigator.clipboard.writeText(tsv).then(function() { var btn = document.getElementById('copy-btn'); btn.textContent = '✓ Copied'; btn.classList.add('ok'); setTimeout(function() { btn.textContent = 'Copy for Google Sheets'; btn.classList.remove('ok'); }, 2500); }); } }
+calc();
+</script>
 </body>
 </html>
