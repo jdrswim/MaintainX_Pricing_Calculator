@@ -4,8 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #1a1a1a; min-height: 100vh; }
+body { font-family: 'Inter', sans-serif; background: #f5f5f5; color: #1a1a1a; min-height: 100vh; }
 
 .header { background: #1B3B6F; padding: 16px 24px; display: flex; align-items: center; }
 .logo { display: flex; align-items: center; gap: 10px; }
@@ -75,7 +76,7 @@ table.qt tr:last-child td { border-bottom: none; }
 
 .totals { display: flex; justify-content: flex-end; margin-top: 12px; }
 .totals-inner { min-width: 280px; }
-.trow { display: flex; justify-content: space-between; align-items: center; padding: 9px 14px; background: #1B3B6F; color: white; font-weight: 700; margin-bottom: 2px; border-radius: 6px; font-size: 14px; }
+.trow { display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 9px 14px; background: #1B3B6F; color: white; font-weight: 700; margin-bottom: 2px; border-radius: 6px; font-size: 14px; }
 .trow.big { font-size: 15px; }
 .trow.big .tval { font-size: 19px; }
 
@@ -86,7 +87,7 @@ table.qt tr:last-child td { border-bottom: none; }
 
 <div class="header">
   <div class="logo">
-    <span style="font-size:26px;font-weight:800;color:white;letter-spacing:-0.5px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">Maintain<span style="color:#2563EB;">X</span></span>
+    <span style="font-size:26px;font-weight:800;color:white;letter-spacing:-0.5px;font-family:'Inter',sans-serif;">Maintain<span style="color:#2563EB;">X</span></span>
   </div>
   <span class="header-sub">Pricing Calculator — Internal Sales Tool</span>
 </div>
@@ -116,13 +117,7 @@ table.qt tr:last-child td { border-bottom: none; }
 
   <div class="section">
     <div class="section-title">2. Configure</div>
-    <div class="toggle-row">
-      <span style="font-size:13px;color:#555;font-weight:500">Billing cycle:</span>
-      <div class="toggle">
-        <button id="btn-mo" onclick="setBilling('monthly')">Monthly</button>
-        <button id="btn-yr" class="active" onclick="setBilling('yearly')">Yearly</button>
-      </div>
-    </div>
+
     <div class="inputs-grid">
       <div class="input-group">
         <label>Full users (admin + full)</label>
@@ -188,7 +183,7 @@ table.qt tr:last-child td { border-bottom: none; }
       <tbody id="qtbody"></tbody>
     </table>
     <div class="totals">
-      <div class="totals-inner">
+      <div class="totals-inner" id="totals-block">
         <div class="trow"><span>Discount total</span><span id="q-disc">$0.00</span></div>
         <div class="trow big"><span>1-year agreement total</span><span class="tval" id="q-total">$0.00</span></div>
       </div>
@@ -217,12 +212,7 @@ function selectPlan(p) {
   calc();
 }
 
-function setBilling(b) {
-  curBill = b;
-  document.getElementById('btn-mo').classList.toggle('active', b==='monthly');
-  document.getElementById('btn-yr').classList.toggle('active', b==='yearly');
-  calc();
-}
+
 
 function selectImp(i) {
   curImp = i;
@@ -286,12 +276,12 @@ function calc() {
 
   var rows = [];
   rows.push({
-    name:'Full License Subscription', sub:'Full Users + Admin Users · Per user/annually',
+    name:'Full License Subscription', sub:'Full Users + Administrator User License',
     count:v.users, list:d(v.listPU)+'/user/yr', disc:pct(v.sdp),
     net:d(v.netPU)+'/user/yr', subtotal:d(v.fullNet), subsub:'(Annually)'
   });
   rows.push({
-    name:'Limited License Subscription', sub:'Operator + Read-Only · Per user/annually',
+    name:'Limited License Subscription', sub:'Operator User License',
     count:v.ops,
     list: curPlan==='essential'?'—':d(v.P.opYr)+'/user/yr',
     disc: curPlan==='essential'?'—': pct(v.ops>0&&v.P.opYr>0 ? Math.round((1-(v.P.opYr*(1-v.sd)/v.P.opYr))*10000)/100 : 0),
@@ -331,7 +321,17 @@ function calc() {
   });
 
   document.getElementById('q-disc').textContent = d(v.discTotal);
-  document.getElementById('q-total').textContent = d(v.year1);
+  var totalBlock = document.getElementById('totals-block');
+  if (curBill==='monthly') {
+    totalBlock.innerHTML =
+      '<div class="trow"><span>Discount total</span><span>'+d(v.discTotal)+'</span></div>'+
+      '<div class="trow"><span>Monthly invoice total</span><span>'+d(v.year1/12)+'</span></div>'+
+      '<div class="trow big"><span>12-month total</span><span class="tval">'+d(v.year1)+'</span></div>';
+  } else {
+    totalBlock.innerHTML =
+      '<div class="trow"><span>Discount total</span><span>'+d(v.discTotal)+'</span></div>'+
+      '<div class="trow big"><span>1-year agreement total</span><span class="tval">'+d(v.year1)+'</span></div>';
+  }
 }
 
 function buildRows() {
@@ -340,8 +340,8 @@ function buildRows() {
   var rows = [
     [v.P.label,'','','','',''],
     ['Item','Count','List Price','Discount','Net Price','Sub-Total'],
-    ['Full License Subscription (Full Users + Admin Users)', v.users, d(v.listPU)+'/user/yr', pct(v.sdp), d(v.netPU)+'/user/yr', d(v.fullNet)+' (Annually)'],
-    ['Limited License Subscription (Operator + Read-Only)', v.ops,
+    ['Full License Subscription (Full Users + Administrator User License)', v.users, d(v.listPU)+'/user/yr', pct(v.sdp), d(v.netPU)+'/user/yr', d(v.fullNet)+' (Annually)'],
+    ['Limited License Subscription (Operator User License)', v.ops,
       curPlan==='essential'?'N/A':d(v.P.opYr)+'/user/yr',
       curPlan==='essential'?'N/A':pct(opDiscPct),
       curPlan==='essential'?'N/A':d(v.P.opYr*(1-v.sd))+'/user/yr',
@@ -358,7 +358,12 @@ function buildRows() {
   ]);
   rows.push(['Requester Only Users','Unlimited','—','—','—','$0.00']);
   rows.push(['','','','','Discount Total:',d(v.discTotal)]);
-  rows.push(['','','','','1-Year Agreement Total:',d(v.year1)]);
+  if (curBill==='monthly') {
+    rows.push(['','','','','Monthly Invoice Total:',d(v.year1/12)]);
+    rows.push(['','','','','12-Month Total:',d(v.year1)]);
+  } else {
+    rows.push(['','','','','1-Year Agreement Total:',d(v.year1)]);
+  }
   return rows;
 }
 
